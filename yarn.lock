@@ -257,6 +257,11 @@
   resolved "https://registry.yarnpkg.com/@react-rxjs/core/-/core-0.8.4.tgz#26f6fe3c64014097b487fdd5aa7e36577e5c333a"
   integrity sha512-n+aa0sSrzj3ctBgmHl13nz0a4nKzcDmu+z+WgUtOmRp7niAzs+f02t2D/FyEfvs0Fp1Zq7z2hh5HM2LBlQPAhA==
 
+"@react-rxjs/utils-alpha@npm:@react-rxjs/utils@alpha":
+  version "0.10.0-alpha.1"
+  resolved "https://registry.yarnpkg.com/@react-rxjs/utils/-/utils-0.10.0-alpha.1.tgz#dce2d2dbedd9b00407ef4ba6570636185a0c0c85"
+  integrity sha512-c8Fzt3aTi7Kd/6F9I10nrYd7nCpSagsRoFLdCA59ofYUELZFAq7MnT6YPLODqxRFs76zWj3fk3fzVAWzSXTLkA==
+
 "@react-rxjs/utils@^0.9.3":
   version "0.9.3"
   resolved "https://registry.yarnpkg.com/@react-rxjs/utils/-/utils-0.9.3.tgz#1762b7146aa6c32677fe1863cf7213d1f7622d22"

@@ -28,7 +28,7 @@ export function filterEntities<K, T>(
     combineLatest([getObservable$(key), testFn$]).pipe(
       map(([value, testFn]) => testFn(value)),
       distinctUntilChanged(),
-      map((testResult) => [key, testResult])
+      map((testResult) => [key, testResult] as const)
     )
   ).pipe(
     map((results) => results.filter(([, test]) => test).map(([key]) => key))

@@ -9,6 +9,7 @@
   "dependencies": {
     "@react-rxjs/core": "^0.8.4",
     "@react-rxjs/utils": "^0.9.3",
+    "@react-rxjs/utils-alpha": "npm:@react-rxjs/utils@alpha",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "rxjs": "^7.4.0"

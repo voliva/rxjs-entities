@@ -1,45 +1,48 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useEffect } from "react";
+import { Benchmark } from "./Benchmark";
+import benchmarks from "./benchmarks";
+import { changeQuantity, elements$, useSelectedQuantity } from "./elements";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const count = useSelectedQuantity();
+
+  useEffect(() => {
+    const sub = elements$.subscribe();
+    return () => sub.unsubscribe();
+  }, []);
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
+      <label style={{ position: "sticky", top: 0, background: "white" }}>
+        Count: {count}
+        <input
+          style={{ marginLeft: "1rem" }}
+          type="number"
+          step="1"
+          defaultValue={count}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            !Number.isNaN(e.currentTarget.valueAsNumber) &&
+            changeQuantity(
+              Math.max(0, Math.min(2000000, e.currentTarget.valueAsNumber))
+            )
+          }
+        />
+      </label>
+      <div key={count}>
+        {Object.entries(benchmarks).map(([name, group]) => (
+          <div key={name}>
+            <h3>{name}</h3>
+            {group.map(({ element, name, ...rest }) => (
+              <Benchmark key={name} name={name} {...rest}>
+                {element}
+              </Benchmark>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
