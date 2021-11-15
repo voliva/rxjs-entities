@@ -21,14 +21,13 @@ const [useKeysLength] = bind(
     getElement$,
     of((value) => value.active)
   ).pipe(
-    scan((acc, v) => {
+    syncSkip((acc, v) => {
       v.changes.forEach((change) => {
         acc.changes.push(change);
       });
       v.changes = acc.changes;
       return v;
     }),
-    syncSkip(),
     map((keys) => Array.from(keys).length)
   ),
   0

@@ -12,25 +12,19 @@ import {
   scan,
 } from "rxjs";
 
+interface SyncSkipFunction {
+  <T>(): MonoTypeOperatorFunction<T>;
+  <T>(accumulator: (acc: T, value: T) => T): MonoTypeOperatorFunction<T>;
+  <T, A>(
+    accumulator: (acc: A, value: T) => T,
+    initialValue: () => A
+  ): OperatorFunction<T, A>;
+}
+
 export function createSyncSkip(): {
   flatten: <V>() => OperatorFunction<Iterable<V>, V>;
-  syncSkip: <T>() => MonoTypeOperatorFunction<T>;
-};
-export function createSyncSkip<T>(accumulator: (acc: T, value: T) => T): {
-  flatten: <V>() => OperatorFunction<Iterable<V>, V>;
-  syncSkip: () => MonoTypeOperatorFunction<T>;
-};
-export function createSyncSkip<T, A>(
-  accumulator: (acc: A, value: T) => A,
-  initialValue: () => A
-): {
-  flatten: <V>() => OperatorFunction<Iterable<V>, V>;
-  syncSkip: () => OperatorFunction<T, A>;
-};
-export function createSyncSkip<T, A>(
-  accumulator: (acc: A, value: T) => A = (_, v) => v as any,
-  initialValue: (() => A) | undefined = undefined
-) {
+  syncSkip: SyncSkipFunction;
+} {
   let emitting = new BehaviorSubject(false);
 
   function flatten<V>(): OperatorFunction<Iterable<V>, V> {
@@ -45,7 +39,10 @@ export function createSyncSkip<T, A>(
       })
     );
   }
-  function syncSkip(): OperatorFunction<T, T | A> {
+  function syncSkip<T, A>(
+    accumulator: (acc: A, value: T) => A = (_, v) => v as any,
+    initialValue: (() => A) | undefined = undefined
+  ): OperatorFunction<T, T | A> {
     return (source) =>
       combineLatest({
         emitting,
