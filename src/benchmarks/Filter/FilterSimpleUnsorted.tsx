@@ -1,19 +1,24 @@
 import { bind } from "@react-rxjs/core";
-import { combineKeys } from "@react-rxjs/utils-alpha";
-import { map } from "rxjs";
-import { elements$ } from "../../elements";
+import { map, merge } from "rxjs";
+import { createBumpBenchmark, elements$ } from "../../elements";
+import { combineKeysWithChanges } from "../../lib/reutils/combineKeysWithChanges";
 import { partitionByKeyWithChanges } from "../../lib/reutils/partitionByKeyWithChanges";
 import { createSyncSkip } from "../../lib/syncSkip";
 
+const { useBump, bumpElement$ } = createBumpBenchmark(() => ({
+  active: true,
+}));
+
 const { flatten, syncSkip } = createSyncSkip();
 const [getElement$, keys$] = partitionByKeyWithChanges(
-  elements$.pipe(flatten()),
+  merge(elements$.pipe(flatten()), bumpElement$),
   (v) => v.key
 );
 
 const [useKeysLength] = bind(
-  combineKeys(keys$.pipe(syncSkip()), getElement$).pipe(
-    map((map) => Array.from(map.values()).filter((v) => v.active).length)
+  combineKeysWithChanges(keys$, getElement$).pipe(
+    map((map) => Array.from(map.values()).filter((v) => v.active).length),
+    syncSkip()
   ),
   0
 );
@@ -21,5 +26,9 @@ const [useKeysLength] = bind(
 export const FilterSimpleUnsorted = () => {
   const count = useKeysLength();
 
-  return <div>Count: {count}</div>;
+  return (
+    <div>
+      Count: {count} {useBump()}
+    </div>
+  );
 };

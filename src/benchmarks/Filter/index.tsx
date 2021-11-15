@@ -14,20 +14,20 @@ const benchmarks: BenchmarkType[] = [
   {
     name: "FilterSimpleUnsorted",
     element: <FilterSimpleUnsorted />,
-    warnLimit: 150_000,
-    forbidLimit: 700_000,
+    warnLimit: 15_000,
+    forbidLimit: 35_000,
   },
   {
     name: "FilterSorted",
     element: <FilterSorted />,
-    warnLimit: 100_000,
-    forbidLimit: 500_000,
+    warnLimit: 5_000,
+    forbidLimit: 10_000,
   },
   {
     name: "FilterSimpleSorted",
     element: <FilterSimpleSorted />,
-    warnLimit: 150_000,
-    forbidLimit: 700_000,
+    warnLimit: 5_000,
+    forbidLimit: 10_000,
   },
 ];
 export default benchmarks;

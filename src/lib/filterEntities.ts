@@ -20,7 +20,7 @@ The list of elements filtered by the testFn
   All the observables are evaluated for the new change.
 */
 export function filterEntities<K, T>(
-  keys$: Observable<K[]>,
+  keys$: Observable<Iterable<K>>,
   getObservable$: (key: K) => Observable<T>,
   testFn$: Observable<(value: T) => boolean>
 ) {

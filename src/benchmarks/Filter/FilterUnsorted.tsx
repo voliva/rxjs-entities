@@ -1,13 +1,17 @@
 import { bind } from "@react-rxjs/core";
-import { map, of, scan } from "rxjs";
-import { elements$ } from "../../elements";
+import { map, merge, of, scan } from "rxjs";
+import { createBumpBenchmark, elements$ } from "../../elements";
 import { filterEntitiesUnsorted } from "../../lib/filterEntitiesUnsorted";
 import { partitionByKeyWithChanges } from "../../lib/reutils/partitionByKeyWithChanges";
-import { createSyncSkip } from "../../lib/syncSkip";
+import { createSyncSkip } from "../../lib/syncSkipBenchmark";
+
+const { useBump, bumpElement$ } = createBumpBenchmark(() => ({
+  active: true,
+}));
 
 const { flatten, syncSkip } = createSyncSkip();
 const [getElement$, keys$] = partitionByKeyWithChanges(
-  elements$.pipe(flatten()),
+  merge(elements$.pipe(flatten()), bumpElement$),
   (v) => v.key
 );
 
@@ -33,5 +37,9 @@ const [useKeysLength] = bind(
 export const FilterUnsorted = () => {
   const count = useKeysLength();
 
-  return <div>Count: {count}</div>;
+  return (
+    <div>
+      Count: {count} {useBump()}
+    </div>
+  );
 };

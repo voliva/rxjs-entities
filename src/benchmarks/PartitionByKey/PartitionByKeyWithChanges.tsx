@@ -2,7 +2,7 @@ import { bind } from "@react-rxjs/core";
 import { map, scan } from "rxjs";
 import { elements$ } from "../../elements";
 import { partitionByKeyWithChanges } from "../../lib/reutils/partitionByKeyWithChanges";
-import { createSyncSkip } from "../../lib/syncSkip";
+import { createSyncSkip } from "../../lib/syncSkipBenchmark";
 
 const { flatten, syncSkip } = createSyncSkip();
 const [_, keys$] = partitionByKeyWithChanges(
