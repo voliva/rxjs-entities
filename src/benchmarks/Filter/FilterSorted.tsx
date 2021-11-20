@@ -22,7 +22,7 @@ const [useKeysLength] = bind(
     of((value) => value.active)
   ).pipe(
     syncSkip(),
-    map((keys) => keys.length)
+    map((keys) => Array.from(keys).length)
   ),
   0
 );

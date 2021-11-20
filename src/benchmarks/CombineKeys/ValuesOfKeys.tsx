@@ -1,9 +1,9 @@
 import { bind } from "@react-rxjs/core";
-import { map } from "rxjs";
+import { map, tap } from "rxjs";
 import { elements$ } from "../../elements";
 import { partitionByKeyWithChanges } from "../../lib/reutils/partitionByKeyWithChanges";
 import { valuesOfKeys$ } from "../../lib/reutils/valuesOfKeys$";
-import { createSyncSkip } from "../../lib/syncSkip";
+import { createSyncSkip } from "../../lib/syncSkipBenchmark";
 
 const { flatten, syncSkip } = createSyncSkip();
 const [getElement$, keys$] = partitionByKeyWithChanges(
@@ -12,9 +12,9 @@ const [getElement$, keys$] = partitionByKeyWithChanges(
 );
 
 const [useKeysLength] = bind(
-  valuesOfKeys$(keys$.pipe(map((keys) => Array.from(keys))), getElement$).pipe(
+  valuesOfKeys$(keys$, getElement$).pipe(
     syncSkip(),
-    map((keys) => keys.length)
+    map((keys) => Array.from(keys).length)
   ),
   0
 );

@@ -28,7 +28,7 @@ const [useKeysLength] = bind(
       v.changes = acc.changes;
       return v;
     }),
-    map((keys) => Array.from(keys).length)
+    map((keys) => keys.size)
   ),
   0
 );

@@ -1,4 +1,5 @@
 import { Observable, Subscription } from "rxjs";
+import { mapIterable } from "../iterableUtils";
 import { WithChange } from "./withChange";
 
 /**
@@ -8,32 +9,30 @@ export function valuesOfKeys$<K, T>(
   keys$: Observable<WithChange<Iterable<K>, K>>,
   getObservable$: (key: K) => Observable<T>
 ) {
-  return new Observable<Array<T>>((observer) => {
-    const latestValues: T[] = [];
+  return new Observable<Iterable<T>>((observer) => {
+    let latestKeys: Iterable<K> = [];
     let activeKeys = new Map<
       K,
       {
         sub: Subscription;
-        index: number;
         latestValue: T;
       }
     >();
 
-    const keysSub = keys$.subscribe(function vokMainsub(keys) {
-      if (
-        keys.changes.some(
-          ({ change, index }) => change === "add" && index === undefined
-        )
-      ) {
-        // Too bad, we neeed a full scan :(
-        throw new Error("not implemented");
-      }
+    function emitChange() {
+      observer.next(
+        mapIterable(latestKeys, (key) => activeKeys.get(key)!.latestValue!)
+      );
+    }
 
-      let minIndex = Number.POSITIVE_INFINITY;
-      keys.changes.forEach(({ change, key, index }) => {
+    const keysSub = keys$.subscribe(function vokMainsub(keys) {
+      latestKeys = keys;
+
+      let initializing = true;
+
+      keys.changes.forEach(({ change, key }) => {
         if (change === "add") {
           const keyV = {
-            index: index!,
             latestValue: undefined as any,
           };
 
@@ -41,67 +40,25 @@ export function valuesOfKeys$<K, T>(
           Object.assign(keyV, {
             sub: getObservable$(key).subscribe((value) => {
               keyV.latestValue = value;
-              latestValues[keyV.index] = value;
 
               if (!initializing) {
-                observer.next(latestValues);
+                emitChange();
               }
             }),
           });
-          newKeys.set(key, keyV as any);
-          minIndex = Math.min(minIndex, index!);
+          activeKeys.set(key, keyV as any);
         } else {
+          // Delete
+          const keyV = activeKeys.get(key);
+          if (keyV) {
+            keyV.sub.unsubscribe();
+            activeKeys.delete(key);
+          }
         }
       });
 
-      let newKeys = new Map<
-        K,
-        {
-          sub: Subscription;
-          index: number;
-          latestValue: T;
-        }
-      >();
-      let initializing = true;
-
-      let index = 0;
-      for (const key of keys) {
-        if (activeKeys.has(key)) {
-          const keyV = activeKeys.get(key)!;
-          keyV.index = index;
-          latestValues[index] = keyV.latestValue;
-          activeKeys.delete(key);
-          newKeys.set(key, keyV);
-        } else {
-          const keyV = {
-            index,
-            latestValue: undefined as any,
-          };
-          Object.assign(keyV, {
-            sub: getObservable$(key).subscribe((value) => {
-              keyV.latestValue = value;
-              latestValues[keyV.index] = value;
-
-              if (!initializing) {
-                observer.next(latestValues);
-              }
-            }),
-          });
-          newKeys.set(key, keyV as any);
-        }
-        index++;
-      }
-      latestValues.length = index;
       initializing = false;
-
-      for (const keyV of activeKeys.values()) {
-        keyV.sub.unsubscribe();
-      }
-      activeKeys.clear();
-
-      activeKeys = newKeys;
-
-      observer.next(latestValues);
+      emitChange();
     });
 
     return () => {
@@ -110,7 +67,6 @@ export function valuesOfKeys$<K, T>(
         keyV.sub.unsubscribe();
       }
       activeKeys.clear();
-      latestValues.length = 0;
     };
   });
 }

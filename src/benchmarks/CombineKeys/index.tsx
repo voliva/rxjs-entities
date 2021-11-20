@@ -33,8 +33,8 @@ const benchmarks: BenchmarkType[] = [
   {
     name: "ValuesOfKeys",
     element: <ValuesOfKeys />,
-    warnLimit: 5_000,
-    forbidLimit: 10_000,
+    warnLimit: 200_000,
+    forbidLimit: 700_000,
   },
 ];
 export default benchmarks;

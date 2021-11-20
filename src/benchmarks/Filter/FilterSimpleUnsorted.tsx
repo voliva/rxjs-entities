@@ -17,8 +17,9 @@ const [getElement$, keys$] = partitionByKeyWithChanges(
 
 const [useKeysLength] = bind(
   combineKeysWithChanges(keys$, getElement$).pipe(
-    map((map) => Array.from(map.values()).filter((v) => v.active).length),
-    syncSkip()
+    map((map) => Array.from(map.values()).filter((v) => v.active)),
+    syncSkip(),
+    map((values) => values.length)
   ),
   0
 );

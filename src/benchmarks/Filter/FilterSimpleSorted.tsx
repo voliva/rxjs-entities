@@ -1,24 +1,20 @@
 import { bind } from "@react-rxjs/core";
-import { map, merge } from "rxjs";
+import { map, scan, startWith, switchMap } from "rxjs";
 import { createBumpBenchmark, elements$ } from "../../elements";
-import { partitionByKeyWithChanges } from "../../lib/reutils/partitionByKeyWithChanges";
-import { valuesOfKeys$ } from "../../lib/reutils/valuesOfKeys$";
-import { createSyncSkip } from "../../lib/syncSkip";
 
 const { useBump, bumpElement$ } = createBumpBenchmark(() => ({
   active: true,
 }));
 
-const { flatten, syncSkip } = createSyncSkip();
-const [getElement$, keys$] = partitionByKeyWithChanges(
-  merge(elements$.pipe(flatten()), bumpElement$),
-  (v) => v.key
-);
-
 const [useKeysLength] = bind(
-  valuesOfKeys$(keys$, getElement$).pipe(
-    map((values) => values.filter((v) => v.active).length),
-    syncSkip()
+  elements$.pipe(
+    switchMap((initialValue) =>
+      bumpElement$.pipe(
+        scan((acc, v) => [...acc, v], initialValue),
+        startWith(initialValue)
+      )
+    ),
+    map((values) => values.filter((v) => v.active).length)
   ),
   0
 );
